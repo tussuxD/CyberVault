@@ -138,12 +138,9 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between p-4 rounded-xl bg-black/20 border border-primary/5 hover:border-primary/20 transition-colors">
                       <div>
                         <h4 className="font-bold text-white mb-1">Strict Two-Factor Auth</h4>
-                        <p className="text-sm text-muted-foreground">Require 2FA for all dashboard access.</p>
+                        <p className="text-sm text-muted-foreground">Two-factor sign-in is not available yet.</p>
                       </div>
-                      <Switch 
-                        checked={localSettings.twoFactorEnabled} 
-                        onChange={(v) => handleToggle('twoFactorEnabled', v)} 
-                      />
+                      <span className="text-xs font-bold text-muted-foreground uppercase">Unavailable</span>
                     </div>
                     
                     <div className="p-4 rounded-xl bg-black/20 border border-primary/5 hover:border-primary/20 transition-colors">

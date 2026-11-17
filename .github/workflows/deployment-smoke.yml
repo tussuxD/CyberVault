@@ -20,7 +20,7 @@ jobs:
         run: docker build -f Dockerfile.cybervault -t cybervault-ci .
 
       - name: Type-check the dashboard
-        run: docker run --rm cybervault-ci npx --yes pnpm@10.34.9 --filter @workspace/cyber-dashboard run typecheck
+        run: docker run --rm cybervault-ci sh -c 'npx --yes pnpm@10.34.9 exec tsc --build lib/api-client-react && npx --yes pnpm@10.34.9 --filter @workspace/cyber-dashboard run typecheck'
 
       - name: Start an isolated database and app
         run: |

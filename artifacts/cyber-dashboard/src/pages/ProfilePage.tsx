@@ -133,11 +133,6 @@ export default function ProfilePage() {
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-primary/20 text-primary border border-primary/30 font-mono">
                     {profile.role}
                   </span>
-                  {profile.twoFactorEnabled && (
-                    <span className="ml-2 flex items-center text-xs text-green-500 font-medium">
-                      <ShieldCheck className="w-3.5 h-3.5 mr-1" /> 2FA Active
-                    </span>
-                  )}
                 </div>
 
                 {isEditing ? (
@@ -270,14 +265,11 @@ export default function ProfilePage() {
                     )}
                     <div className="flex items-center justify-between p-3 rounded-lg bg-black/20 border border-primary/5">
                       <div className="flex items-center">
-                        <ShieldCheck className="w-4 h-4 mr-3 text-green-500" />
+                        <ShieldCheck className="w-4 h-4 mr-3 text-muted-foreground" />
                         <div>
                           <p className="text-sm font-medium text-white">Two-Factor Auth</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">Authenticator App configured</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Two-factor sign-in is not available yet.</p>
                         </div>
-                      </div>
-                      <div className="w-10 h-5 bg-green-500/20 rounded-full border border-green-500/50 flex items-center px-0.5 relative">
-                        <div className="w-4 h-4 bg-green-500 rounded-full absolute right-0.5"></div>
                       </div>
                     </div>
                   </div>

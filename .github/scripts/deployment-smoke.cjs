@@ -31,6 +31,7 @@ const NEW_PASSWORD = 'new-ci-only-password-456';
     assert.doesNotMatch(await fleet.innerText(), /103\s+Devices/i);
 
     await page.goto('/profile', { waitUntil: 'domcontentloaded' });
+    await page.getByText('Two-factor sign-in is not available yet.').waitFor();
     await page.getByRole('button', { name: 'Update', exact: true }).click();
     await page.locator('#current-password').fill('wrong-password');
     await page.locator('#new-password').fill(NEW_PASSWORD);
@@ -54,6 +55,13 @@ const NEW_PASSWORD = 'new-ci-only-password-456';
       data: { email: EMAIL, password: OLD_PASSWORD },
     });
     assert.equal(oldLogin.status(), 401, 'Old password should no longer authenticate');
+
+    await page.goto('/settings', { waitUntil: 'domcontentloaded' });
+    await page.getByRole('button', { name: 'Security Policy' }).click();
+    await page.getByText('Two-factor sign-in is not available yet.').waitFor();
+
+    await page.goto('/forgot-password', { waitUntil: 'domcontentloaded' });
+    await page.getByText(/Email password recovery is not configured yet/).waitFor();
 
     await page.goto('/detection', { waitUntil: 'domcontentloaded' });
     const runAnalysis = page.getByRole('button', { name: 'Run Analysis' });
