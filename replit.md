@@ -1,4 +1,4 @@
-# CyberShield — Cybersecurity Monitoring Dashboard
+# CyberVault — Cybersecurity Monitoring Dashboard
 
 An enterprise-grade security operations dashboard inspired by Microsoft Defender and CrowdStrike Falcon. Monitors endpoints, alerts, threat analytics, and system logs in real time.
 

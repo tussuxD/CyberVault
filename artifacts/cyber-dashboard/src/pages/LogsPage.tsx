@@ -91,7 +91,7 @@ export default function LogsPage() {
               <div className="w-3 h-3 rounded-full bg-amber-500/80"></div>
               <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
             </div>
-            <span className="text-[10px] font-mono text-muted-foreground ml-2">tail -f /var/log/cybershield.log</span>
+            <span className="text-[10px] font-mono text-muted-foreground ml-2">tail -f /var/log/cybervault.log</span>
           </div>
 
           {/* Filter Bar */}

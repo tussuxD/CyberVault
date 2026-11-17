@@ -25,7 +25,7 @@ export default function LandingPage() {
               <div className="absolute inset-0 bg-primary/20 blur group-hover:bg-primary/40 transition-colors rounded-xl"></div>
               <Shield className="w-6 h-6 text-primary relative z-10" />
             </div>
-            <span className="text-xl font-black tracking-tight text-white">CyberShield</span>
+            <span className="text-xl font-black tracking-tight text-white">CyberVault</span>
           </div>
           
           <div className="hidden md:flex items-center gap-8 text-sm font-bold text-muted-foreground">
@@ -202,10 +202,10 @@ export default function LandingPage() {
                   <div className="w-3 h-3 rounded-full bg-amber-500"></div>
                   <div className="w-3 h-3 rounded-full bg-green-500"></div>
                 </div>
-                <div className="mx-auto text-xs font-mono text-muted-foreground">operator@cybershield:~</div>
+                <div className="mx-auto text-xs font-mono text-muted-foreground">operator@cybervault:~</div>
               </div>
               <div className="p-6 font-mono text-sm leading-relaxed text-muted-foreground/80 min-h-[300px]">
-                <p><span className="text-green-500">➜</span> <span className="text-cyan-400">~</span> ./cybershield init --mode=tactical</p>
+                <p><span className="text-green-500">➜</span> <span className="text-cyan-400">~</span> ./cybervault init --mode=tactical</p>
                 <p className="text-white mt-2">Initializing defense matrix...</p>
                 <p>[OK] Connecting to global telemetry network</p>
                 <p>[OK] Loading behavioral baselines (v4.9.2)</p>
@@ -228,7 +228,7 @@ export default function LandingPage() {
             </div>
             <h2 className="text-3xl md:text-4xl font-black text-white mb-6 tracking-tight">GUI Optional.</h2>
             <p className="text-muted-foreground mb-8 text-lg">
-              While the dashboard provides comprehensive visual analysis, the entire platform can be driven via our CLI tool and REST API. Integrate CyberShield directly into your existing CI/CD pipelines and infrastructure as code workflows.
+              While the dashboard provides comprehensive visual analysis, the entire platform can be driven via our CLI tool and REST API. Integrate CyberVault directly into your existing CI/CD pipelines and infrastructure as code workflows.
             </p>
             <ul className="space-y-4 mb-8">
               {['Full API parity with the web interface', 'Webhook integrations for Slack/PagerDuty', 'Export telemetry to SIEM solutions'].map((item, i) => (
@@ -264,7 +264,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <Shield className="w-6 h-6 text-primary" />
-            <span className="text-lg font-black tracking-tight text-white">CyberShield</span>
+            <span className="text-lg font-black tracking-tight text-white">CyberVault</span>
           </div>
           <div className="flex gap-6 text-sm font-bold text-muted-foreground">
             <a href="#" className="hover:text-white transition-colors">Documentation</a>
@@ -272,7 +272,7 @@ export default function LandingPage() {
             <a href="#" className="hover:text-white transition-colors">Status</a>
           </div>
           <p className="text-xs text-muted-foreground font-mono">
-            © {new Date().getFullYear()} CyberShield Security Systems.
+            © {new Date().getFullYear()} CyberVault Security Systems.
           </p>
         </div>
       </footer>

@@ -174,7 +174,7 @@ export default function SettingsPage() {
                   <div className="space-y-4">
                     <div className="p-4 rounded-xl bg-black/20 border border-primary/10">
                       <h4 className="font-bold text-white mb-2">Personal Access Token</h4>
-                      <p className="text-sm text-muted-foreground mb-4">Use this token to authenticate external scripts against the CyberShield API.</p>
+                      <p className="text-sm text-muted-foreground mb-4">Use this token to authenticate external scripts against the CyberVault API.</p>
                       
                       <div className="flex gap-2">
                         <div className="flex-1 relative">

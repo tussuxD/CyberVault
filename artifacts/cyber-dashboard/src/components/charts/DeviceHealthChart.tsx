@@ -20,13 +20,23 @@ export const DeviceHealthChart: React.FC<DeviceHealthChartProps> = ({ data, isLo
   }
 
   const chartData = [
-    { name: 'Healthy', value: data.healthy || 85, color: COLORS.healthy },
-    { name: 'Warning', value: data.warning || 10, color: COLORS.warning },
-    { name: 'Critical', value: data.critical || 3, color: COLORS.critical },
-    { name: 'Offline', value: data.offline || 5, color: COLORS.offline },
+    { name: 'Healthy', value: data.healthy ?? 0, color: COLORS.healthy },
+    { name: 'Warning', value: data.warning ?? 0, color: COLORS.warning },
+    { name: 'Critical', value: data.critical ?? 0, color: COLORS.critical },
+    { name: 'Offline', value: data.offline ?? 0, color: COLORS.offline },
   ].filter(item => item.value > 0);
 
   const total = chartData.reduce((acc, item) => acc + item.value, 0);
+
+  if (total === 0) {
+    return (
+      <div className="w-full h-[300px] flex flex-col items-center justify-center text-center" role="status">
+        <span className="text-3xl font-bold font-mono text-white">0</span>
+        <span className="text-xs text-muted-foreground uppercase">Devices</span>
+        <p className="text-sm text-muted-foreground mt-3">No devices have been registered yet.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-[300px] relative">

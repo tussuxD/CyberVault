@@ -10,7 +10,53 @@ export default function ProfilePage() {
   const { data: profile, isLoading } = useGetProfile();
   const { data: activities } = useListActivities({ limit: 5 });
   const [isEditing, setIsEditing] = useState(false);
+  const [passwordFormOpen, setPasswordFormOpen] = useState(false);
+  const [passwordFields, setPasswordFields] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
   const { toast } = useToast();
+
+  const resetPasswordForm = () => {
+    setPasswordFields({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    setPasswordFormOpen(false);
+  };
+
+  const changePasswordMutation = useChangePassword({
+    mutation: {
+      onSuccess: () => {
+        resetPasswordForm();
+        toast({ title: 'Password updated', description: 'Your new password is ready to use.' });
+      },
+      onError: (error) => {
+        const details = error.data;
+        const message =
+          details && typeof details === 'object' && 'error' in details && typeof details.error === 'string'
+            ? details.error
+            : 'Could not update your password. Please try again.';
+        toast({ title: 'Password update failed', description: message, variant: 'destructive' });
+      },
+    },
+  });
+
+  const submitPassword = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (passwordFields.newPassword.length < 8) {
+      toast({ title: 'Password too short', description: 'Use at least 8 characters.', variant: 'destructive' });
+      return;
+    }
+    if (passwordFields.newPassword !== passwordFields.confirmPassword) {
+      toast({ title: 'Passwords do not match', description: 'Re-enter the same new password.', variant: 'destructive' });
+      return;
+    }
+    changePasswordMutation.mutate({
+      data: {
+        currentPassword: passwordFields.currentPassword,
+        newPassword: passwordFields.newPassword,
+      },
+    });
+  };
 
   const updateProfileMutation = useUpdateProfile({
     mutation: {
@@ -160,11 +206,68 @@ export default function ProfilePage() {
                         <Key className="w-4 h-4 mr-3 text-muted-foreground" />
                         <div>
                           <p className="text-sm font-medium text-white">Password</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">Last changed 30 days ago</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Change your password</p>
                         </div>
                       </div>
-                      <button className="text-xs font-bold text-primary hover:underline">Update</button>
+                      <button
+                        type="button"
+                        aria-expanded={passwordFormOpen}
+                        aria-controls="password-update-form"
+                        onClick={() => passwordFormOpen ? resetPasswordForm() : setPasswordFormOpen(true)}
+                        className="text-xs font-bold text-primary hover:underline"
+                      >
+                        {passwordFormOpen ? 'Cancel' : 'Update'}
+                      </button>
                     </div>
+                    {passwordFormOpen && (
+                      <form id="password-update-form" onSubmit={submitPassword} className="space-y-3 p-3 rounded-lg bg-black/20 border border-primary/10">
+                        <div>
+                          <label htmlFor="current-password" className="block text-xs font-bold text-muted-foreground mb-1">Current password</label>
+                          <input
+                            id="current-password"
+                            type="password"
+                            autoComplete="current-password"
+                            required
+                            value={passwordFields.currentPassword}
+                            onChange={(event) => setPasswordFields({ ...passwordFields, currentPassword: event.target.value })}
+                            className="w-full bg-black/40 border border-primary/20 rounded-lg h-10 px-3 text-white"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="new-password" className="block text-xs font-bold text-muted-foreground mb-1">New password</label>
+                          <input
+                            id="new-password"
+                            type="password"
+                            autoComplete="new-password"
+                            required
+                            minLength={8}
+                            value={passwordFields.newPassword}
+                            onChange={(event) => setPasswordFields({ ...passwordFields, newPassword: event.target.value })}
+                            className="w-full bg-black/40 border border-primary/20 rounded-lg h-10 px-3 text-white"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="confirm-new-password" className="block text-xs font-bold text-muted-foreground mb-1">Confirm new password</label>
+                          <input
+                            id="confirm-new-password"
+                            type="password"
+                            autoComplete="new-password"
+                            required
+                            value={passwordFields.confirmPassword}
+                            onChange={(event) => setPasswordFields({ ...passwordFields, confirmPassword: event.target.value })}
+                            className="w-full bg-black/40 border border-primary/20 rounded-lg h-10 px-3 text-white"
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground">Use at least 8 characters.</p>
+                        <button
+                          type="submit"
+                          disabled={changePasswordMutation.isPending}
+                          className="w-full h-10 rounded-lg bg-primary text-primary-foreground font-bold disabled:opacity-70"
+                        >
+                          {changePasswordMutation.isPending ? 'Updating…' : 'Save password'}
+                        </button>
+                      </form>
+                    )}
                     <div className="flex items-center justify-between p-3 rounded-lg bg-black/20 border border-primary/5">
                       <div className="flex items-center">
                         <ShieldCheck className="w-4 h-4 mr-3 text-green-500" />

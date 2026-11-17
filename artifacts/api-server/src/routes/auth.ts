@@ -72,7 +72,7 @@ router.post("/auth/register", async (req, res) => {
   // Create welcome notification
   await db.insert(notificationsTable).values({
     userId: user.id,
-    title: "Welcome to CyberShield",
+    title: "Welcome to CyberVault",
     message: "Your account has been created successfully. Start monitoring your infrastructure.",
     type: "info",
   });

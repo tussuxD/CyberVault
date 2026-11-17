@@ -75,7 +75,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
             <Shield className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-black text-white tracking-tight">CyberShield</h1>
+          <h1 className="text-3xl font-black text-white tracking-tight">CyberVault</h1>
           <p className="text-muted-foreground text-sm mt-2 font-mono uppercase tracking-widest">Secure Access Portal</p>
         </div>
 
@@ -88,7 +88,7 @@ export default function LoginPage() {
                 {...register("email")}
                 type="email"
                 className="w-full bg-black/40 border border-primary/20 rounded-xl h-12 pl-11 pr-4 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-mono"
-                placeholder="analyst@cybershield.local"
+                placeholder="analyst@cybervault.local"
               />
             </div>
             {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}

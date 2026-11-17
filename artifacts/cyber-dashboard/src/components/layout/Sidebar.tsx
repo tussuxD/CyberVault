@@ -29,7 +29,7 @@ export const Sidebar = () => {
           <Shield className="w-7 h-7 text-primary relative z-10" />
         </div>
         <span className="text-xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
-          CyberShield
+          CyberVault
         </span>
       </div>
 

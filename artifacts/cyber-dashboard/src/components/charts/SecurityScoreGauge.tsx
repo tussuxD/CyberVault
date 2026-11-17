@@ -12,7 +12,7 @@ export const SecurityScoreGauge: React.FC<SecurityScoreGaugeProps> = ({ data, is
     return <div className="w-full h-[300px] flex items-center justify-center bg-black/20 rounded-xl border border-primary/10 animate-pulse" />;
   }
 
-  const score = data.score || 85;
+  const score = data.score ?? 0;
   const grade = data.grade || 'A';
   
   // Determine color based on score

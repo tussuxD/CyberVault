@@ -59,7 +59,7 @@ export default function RegisterPage() {
         setAuth(data.token, data.user);
         toast({
           title: "Registration Successful",
-          description: "Clearance granted. Welcome to CyberShield.",
+          description: "Clearance granted. Welcome to CyberVault.",
         });
         setLocation('/dashboard');
       },
@@ -124,7 +124,7 @@ export default function RegisterPage() {
                 {...register("email")}
                 type="email"
                 className="w-full bg-black/40 border border-primary/20 rounded-xl h-12 pl-11 pr-4 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-mono"
-                placeholder="analyst@cybershield.local"
+                placeholder="analyst@cybervault.local"
               />
             </div>
             {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
