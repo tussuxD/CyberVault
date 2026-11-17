@@ -1,5 +1,6 @@
 import { Router, type Response } from "express";
-import { authMiddleware } from "../middlewares/auth";
+import { activitiesTable, alertsTable, db, logsTable } from "@workspace/db";
+import { authMiddleware, type AuthRequest } from "../middlewares/auth";
 import { ML_SERVICE_URL, MlServiceError, mlRequest } from "../lib/mlClient";
 
 import { verifyAlertEvidence } from "../lib/evidence";
@@ -65,13 +66,52 @@ router.get("/ml/model-info", async (_req, res) => {
 
 // POST /api/ml/predict
 // Accepts a raw CIC-IDS2017 flow object or { flow: {...} } and forwards it.
-router.post("/ml/predict", async (req, res) => {
+router.post("/ml/predict", async (req: AuthRequest, res) => {
   try {
-    const prediction = await mlRequest<Record<string, unknown>>("/predict", {
+    const result = await mlRequest<{ prediction: Record<string, unknown> }>("/predict", {
       method: "POST",
       body: req.body,
     });
-    res.json(prediction);
+    const prediction = result.prediction;
+    const isAttack = prediction.threat === "ATTACK";
+    const category = typeof prediction.attack_type === "string" && prediction.attack_type.trim()
+      ? prediction.attack_type
+      : "Unclassified attack";
+    const reportedSeverity = String(prediction.severity ?? "").toLowerCase();
+    const severity = ["critical", "high", "medium", "low"].includes(reportedSeverity)
+      ? reportedSeverity
+      : "medium";
+    const message = isAttack ? `Detected ${category}` : "Network flow classified as benign";
+    const description = `ML alert #${prediction.alert_id} · risk ${prediction.risk_score ?? "unknown"}`;
+
+    await db.transaction(async (tx) => {
+      await tx.insert(logsTable).values({
+        level: isAttack ? "warning" : "info",
+        source: "ML Detection",
+        message,
+        details: description,
+        userId: req.userId,
+      });
+      if (isAttack) {
+        const [alert] = await tx.insert(alertsTable).values({
+          title: message,
+          description,
+          source: "ML Detection",
+          severity,
+          attackType: category,
+        }).returning({ id: alertsTable.id });
+        await tx.insert(activitiesTable).values({
+          type: "alert_created",
+          message,
+          severity,
+          userId: req.userId,
+          resourceType: "alert",
+          resourceId: alert.id,
+        });
+      }
+    });
+
+    res.json(result);
   } catch (error) {
     sendMlError(res, error);
   }

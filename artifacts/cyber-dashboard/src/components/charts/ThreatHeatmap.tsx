@@ -11,14 +11,8 @@ export const ThreatHeatmap: React.FC<ThreatHeatmapProps> = ({ data, isLoading })
     return <div className="w-full h-[400px] flex items-center justify-center bg-black/20 rounded-xl border border-primary/10 animate-pulse" />;
   }
 
-  // Generate fallback data if needed (24 hours x 7 days)
-  const heatmapData = data.length > 0 ? data : Array.from({ length: 7 * 24 }).map((_, i) => ({
-    day: Math.floor(i / 24),
-    hour: i % 24,
-    value: Math.floor(Math.random() * 100)
-  }));
-
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const heatmapData = data;
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const hours = Array.from({ length: 24 }).map((_, i) => `${i}:00`);
 
   // Helper to determine cell color based on value

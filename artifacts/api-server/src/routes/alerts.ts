@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { eq, and, ilike, count } from "drizzle-orm";
+import { eq, and, ilike, count, desc } from "drizzle-orm";
 import { db, alertsTable, activitiesTable } from "@workspace/db";
 import { authMiddleware, type AuthRequest } from "../middlewares/auth";
 
@@ -39,7 +39,7 @@ router.get("/alerts", async (req: AuthRequest, res) => {
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
   const [data, [{ total }]] = await Promise.all([
-    db.select().from(alertsTable).where(whereClause).orderBy(alertsTable.createdAt).limit(limitNum).offset(offset),
+    db.select().from(alertsTable).where(whereClause).orderBy(desc(alertsTable.createdAt), desc(alertsTable.id)).limit(limitNum).offset(offset),
     db.select({ total: count() }).from(alertsTable).where(whereClause),
   ]);
 

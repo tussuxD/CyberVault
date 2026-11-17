@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { eq, count } from "drizzle-orm";
+import { eq, count, gte } from "drizzle-orm";
 import { db, devicesTable, alertsTable, usersTable } from "@workspace/db";
 import { authMiddleware } from "../middlewares/auth";
 
@@ -60,34 +60,42 @@ router.get("/analytics/network-traffic", (req, res) => {
 });
 
 // GET /api/analytics/threat-trends
-router.get("/analytics/threat-trends", (req, res) => {
-  const period = (req.query["period"] as string) || "30d";
+router.get("/analytics/threat-trends", async (req, res) => {
+  const period = req.query["period"];
   const days = period === "7d" ? 7 : period === "90d" ? 90 : 30;
-  const points = [];
-  const now = Date.now();
-  for (let i = 0; i < days; i++) {
-    const date = new Date(now - (days - i) * 86400000).toISOString().split("T")[0];
-    const critical = Math.floor(Math.random() * 5);
-    const high = Math.floor(Math.random() * 12);
-    const medium = Math.floor(Math.random() * 20);
-    const low = Math.floor(Math.random() * 30);
-    points.push({ date, critical, high, medium, low, total: critical + high + medium + low });
+  const dayMs = 86_400_000;
+  const now = new Date();
+  now.setUTCHours(0, 0, 0, 0);
+  const start = new Date(now.getTime() - (days - 1) * dayMs);
+  const points = new Map<string, { date: string; critical: number; high: number; medium: number; low: number; total: number }>(Array.from({ length: days }, (_, index) => {
+    const date = new Date(start.getTime() + index * dayMs).toISOString().slice(0, 10);
+    return [date, { date, critical: 0, high: 0, medium: 0, low: 0, total: 0 }] as const;
+  }));
+  const rows = await db.select({ severity: alertsTable.severity, date: alertsTable.createdAt })
+    .from(alertsTable).where(gte(alertsTable.createdAt, start));
+
+  for (const { severity, date } of rows) {
+    const point = points.get(date.toISOString().slice(0, 10));
+    if (!point) continue;
+    if (severity === "critical" || severity === "high" || severity === "medium" || severity === "low") {
+      point[severity]++;
+    }
+    point.total++;
   }
-  res.json(points);
+
+  res.json([...points.values()]);
 });
 
 // GET /api/analytics/attack-distribution
-router.get("/analytics/attack-distribution", (_req, res) => {
-  const attacks = [
-    { type: "Malware", count: 247, percentage: 31.2 },
-    { type: "Phishing", count: 189, percentage: 23.9 },
-    { type: "SQL Injection", count: 124, percentage: 15.7 },
-    { type: "DDoS", count: 98, percentage: 12.4 },
-    { type: "Ransomware", count: 67, percentage: 8.5 },
-    { type: "Brute Force", count: 51, percentage: 6.4 },
-    { type: "Zero-Day", count: 15, percentage: 1.9 },
-  ];
-  res.json(attacks);
+router.get("/analytics/attack-distribution", async (_req, res) => {
+  const rows = await db.select({ type: alertsTable.attackType, count: count() })
+    .from(alertsTable).groupBy(alertsTable.attackType);
+  const total = rows.reduce((sum, row) => sum + row.count, 0);
+  res.json(rows.sort((a, b) => b.count - a.count).map(row => ({
+    type: row.type || "Unclassified",
+    count: row.count,
+    percentage: Number((row.count * 100 / total).toFixed(1)),
+  })));
 });
 
 // GET /api/analytics/device-health
@@ -136,16 +144,18 @@ router.get("/analytics/security-score", async (_req, res) => {
 });
 
 // GET /api/analytics/heatmap
-router.get("/analytics/heatmap", (_req, res) => {
-  const cells = [];
-  for (let day = 0; day < 7; day++) {
-    for (let hour = 0; hour < 24; hour++) {
-      const isBusinessHour = hour >= 9 && hour <= 17;
-      const isWeekend = day === 0 || day === 6;
-      let baseValue = isWeekend ? 5 : isBusinessHour ? 25 : 10;
-      baseValue += Math.floor(Math.random() * 20);
-      cells.push({ hour, day, value: baseValue });
-    }
+router.get("/analytics/heatmap", async (_req, res) => {
+  const from = new Date();
+  from.setUTCHours(0, 0, 0, 0);
+  from.setUTCDate(from.getUTCDate() - 6);
+  const alerts = await db.select({ time: alertsTable.createdAt })
+    .from(alertsTable).where(gte(alertsTable.createdAt, from));
+  const cells = Array.from({ length: 168 }, (_, index) => ({
+    day: Math.floor(index / 24), hour: index % 24, value: 0,
+  }));
+  for (const { time } of alerts) {
+    const cell = cells[time.getUTCDay() * 24 + time.getUTCHours()];
+    cell.value++;
   }
   res.json(cells);
 });
