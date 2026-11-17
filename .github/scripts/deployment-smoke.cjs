@@ -79,6 +79,7 @@ const NEW_PASSWORD = 'new-ci-only-password-456';
     const payload = await predictionResponse.json();
     assert.equal(payload.success, true);
     assert.ok(payload.prediction && payload.prediction.threat);
+    console.log('DEMO_SAMPLE_RESULT ' + JSON.stringify({ threat: payload.prediction.threat, attack_type: payload.prediction.attack_type, confidence: payload.prediction.confidence, binary_confidence: payload.prediction.binary_confidence, risk_score: payload.prediction.risk_score, severity: payload.prediction.severity, recommended_actions: payload.prediction.recommended_actions }));
     assert.deepEqual(pageErrors, [], 'Unexpected browser runtime errors');
     console.log('PASS: branding, registration, zero-device chart, password change, and ML prediction');
   } finally {
