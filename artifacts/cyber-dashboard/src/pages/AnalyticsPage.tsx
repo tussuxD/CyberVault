@@ -1,21 +1,22 @@
-import React from 'react';
-import { useGetThreatHeatmap, useGetThreatTrends, useGetRiskAnalysis, useGetNetworkTraffic, useGetDeviceHealth, useGetSecurityScore } from '@workspace/api-client-react';
+import React, { useState } from 'react';
+import { useGetThreatHeatmap, useGetThreatTrends, useGetAttackDistribution, useGetNetworkTraffic, useGetDeviceHealth, useGetSecurityScore } from '@workspace/api-client-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ThreatHeatmap } from '@/components/charts/ThreatHeatmap';
 import { ThreatTrendsChart } from '@/components/charts/ThreatTrendsChart';
-import { RiskAnalysisChart } from '@/components/charts/RiskAnalysisChart';
+import { AttackDistributionChart } from '@/components/charts/AttackDistributionChart';
 import { NetworkTrafficChart } from '@/components/charts/NetworkTrafficChart';
 import { DeviceHealthChart } from '@/components/charts/DeviceHealthChart';
 import { SecurityScoreGauge } from '@/components/charts/SecurityScoreGauge';
 import { Activity, AlertTriangle, ShieldCheck, Target, Radio, Globe } from 'lucide-react';
 
 export default function AnalyticsPage() {
-  const { data: heatmapData, isLoading: heatmapLoading } = useGetThreatHeatmap();
-  const { data: threatTrends, isLoading: trendsLoading } = useGetThreatTrends({ period: '30d' });
-  const { data: riskAnalysis, isLoading: riskLoading } = useGetRiskAnalysis();
-  const { data: networkTraffic, isLoading: networkLoading } = useGetNetworkTraffic({ period: '7d' });
-  const { data: deviceHealth, isLoading: healthLoading } = useGetDeviceHealth();
-  const { data: scoreData, isLoading: scoreLoading } = useGetSecurityScore();
+  const [period, setPeriod] = useState('7d');
+  const { data: heatmapData, isLoading: heatmapLoading, isError: heatmapError } = useGetThreatHeatmap();
+  const { data: threatTrends, isLoading: trendsLoading, isError: trendsError } = useGetThreatTrends({ period: '30d' });
+  const { data: attackDistribution, isLoading: attackLoading, isError: attackError } = useGetAttackDistribution();
+  const { data: networkTraffic, isLoading: networkLoading, isError: networkError } = useGetNetworkTraffic({ period });
+  const { data: deviceHealth, isLoading: healthLoading, isError: healthError } = useGetDeviceHealth();
+  const { data: scoreData, isLoading: scoreLoading, isError: scoreError } = useGetSecurityScore();
 
   return (
     <AppLayout>
@@ -25,11 +26,12 @@ export default function AnalyticsPage() {
             <h1 className="text-3xl font-black text-white tracking-tight">Intelligence & Analytics</h1>
             <p className="text-muted-foreground mt-1">Deep dive into security telemetry and risk patterns.</p>
           </div>
-          <div className="flex items-center gap-2 text-xs font-mono bg-black/40 border border-primary/20 px-3 py-1.5 rounded-lg text-primary">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse mr-1"></span>
-            LIVE TELEMETRY
-          </div>
+
         </div>
+
+        {(heatmapError || trendsError || attackError || networkError || healthError || scoreError) && (
+          <p role="alert" className="text-sm text-amber-400">Some analytics could not load. Refresh to try again.</p>
+        )}
 
         {/* Row 1: Heatmap */}
         <div className="glass-card p-6">
@@ -55,9 +57,9 @@ export default function AnalyticsPage() {
           <div className="glass-card p-6">
             <h3 className="text-lg font-bold mb-6 flex items-center">
               <AlertTriangle className="w-5 h-5 mr-2 text-amber-400" />
-              Risk Vector Analysis
+              Attack Distribution
             </h3>
-            <RiskAnalysisChart data={riskAnalysis} isLoading={riskLoading} />
+            <AttackDistributionChart data={attackDistribution} isLoading={attackLoading} />
           </div>
         </div>
 
@@ -67,12 +69,12 @@ export default function AnalyticsPage() {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold flex items-center">
                 <Globe className="w-5 h-5 mr-2 text-blue-400" />
-                Network Throughput
+                Network Throughput (Simulated)
               </h3>
               <div className="flex gap-1 bg-black/40 p-1 rounded-lg border border-primary/10">
-                {['1h', '24h', '7d', '30d'].map(period => (
-                  <button key={period} className={`px-2 py-1 text-xs font-bold rounded ${period === '7d' ? 'bg-primary text-white' : 'text-muted-foreground hover:text-white'}`}>
-                    {period.toUpperCase()}
+                {['1h', '24h', '7d', '30d'].map(option => (
+                  <button type="button" key={option} onClick={() => setPeriod(option)} aria-pressed={option === period} className={`px-2 py-1 text-xs font-bold rounded ${option === period ? 'bg-primary text-white' : 'text-muted-foreground hover:text-white'}`}>
+                    {option.toUpperCase()}
                   </button>
                 ))}
               </div>

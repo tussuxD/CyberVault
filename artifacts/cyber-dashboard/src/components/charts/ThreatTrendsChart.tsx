@@ -12,18 +12,10 @@ export const ThreatTrendsChart: React.FC<ThreatTrendsChartProps> = ({ data, isLo
     return <div className="w-full h-[300px] flex items-center justify-center bg-black/20 rounded-xl border border-primary/10 animate-pulse" />;
   }
 
-  // Fallback data
-  const chartData = data.length > 0 ? data : Array.from({ length: 7 }).map((_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    return {
-      date: d.toISOString().split('T')[0],
-      critical: Math.floor(Math.random() * 5),
-      high: Math.floor(Math.random() * 15),
-      medium: Math.floor(Math.random() * 30),
-      low: Math.floor(Math.random() * 50),
-    };
-  });
+  if (data.length === 0) {
+    return <p className="text-sm text-muted-foreground">No saved alerts for this chart.</p>;
+  }
+  const chartData = data;
 
   return (
     <div className="w-full h-[300px]">

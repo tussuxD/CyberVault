@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { db, activitiesTable, notificationsTable } from "@workspace/db";
 import { authMiddleware, type AuthRequest } from "../middlewares/auth";
 
@@ -9,7 +9,7 @@ router.use(authMiddleware);
 // GET /api/activities
 router.get("/activities", async (req: AuthRequest, res) => {
   const limit = Math.min(parseInt((req.query["limit"] as string) || "20"), 100);
-  const data = await db.select().from(activitiesTable).orderBy(activitiesTable.createdAt).limit(limit);
+  const data = await db.select().from(activitiesTable).orderBy(desc(activitiesTable.createdAt), desc(activitiesTable.id)).limit(limit);
   res.json(data.map(a => ({
     id: a.id, type: a.type, message: a.message, userId: a.userId,
     userName: a.userName, resourceType: a.resourceType, resourceId: a.resourceId,

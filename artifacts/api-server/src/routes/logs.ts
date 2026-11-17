@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { eq, and, ilike, count, gte, lte } from "drizzle-orm";
+import { eq, and, ilike, count, gte, lte, desc } from "drizzle-orm";
 import { db, logsTable } from "@workspace/db";
 import { authMiddleware, type AuthRequest } from "../middlewares/auth";
 
@@ -36,7 +36,7 @@ router.get("/logs", async (req: AuthRequest, res) => {
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
   const [data, [{ total }]] = await Promise.all([
-    db.select().from(logsTable).where(whereClause).orderBy(logsTable.createdAt).limit(limitNum).offset(offset),
+    db.select().from(logsTable).where(whereClause).orderBy(desc(logsTable.createdAt), desc(logsTable.id)).limit(limitNum).offset(offset),
     db.select({ total: count() }).from(logsTable).where(whereClause),
   ]);
 

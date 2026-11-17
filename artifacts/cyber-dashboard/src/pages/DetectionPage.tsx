@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useMemo, useState } from 'react';
 import {
   getGetMlHealthQueryKey,
@@ -161,6 +162,7 @@ const riskBar = (score: number) => {
 };
 
 export default function DetectionPage() {
+  const queryClient = useQueryClient();
   const [flowInput, setFlowInput] = useState(SAMPLE_JSON);
   const [parseError, setParseError] = useState<string | null>(null);
   const [result, setResult] = useState<MlPrediction | null>(null);
@@ -185,7 +187,11 @@ export default function DetectionPage() {
     mutation: {
       onSuccess: (data) => {
         setResult(data.prediction);
-        alerts.refetch();
+        void queryClient.invalidateQueries({
+          predicate: ({ queryKey }) => typeof queryKey[0] === 'string' &&
+            ['/api/ml/alerts', '/api/alerts', '/api/analytics/', '/api/logs', '/api/activities']
+              .some((prefix) => (queryKey[0] as string).startsWith(prefix)),
+        });
         toast({
           title: data.prediction.threat === 'ATTACK' ? 'Threat detected' : 'Traffic classified',
           description: `${data.prediction.threat} · risk ${data.prediction.risk_score}`,

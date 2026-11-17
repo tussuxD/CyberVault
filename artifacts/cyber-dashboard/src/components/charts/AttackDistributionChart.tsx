@@ -14,14 +14,10 @@ export const AttackDistributionChart: React.FC<AttackDistributionChartProps> = (
     return <div className="w-full h-[300px] flex items-center justify-center bg-black/20 rounded-xl border border-primary/10 animate-pulse" />;
   }
 
-  // Fallback data
-  const chartData = data.length > 0 ? data : [
-    { type: 'Malware', count: 45, percentage: 35 },
-    { type: 'Phishing', count: 32, percentage: 25 },
-    { type: 'DDoS', count: 20, percentage: 15 },
-    { type: 'Brute Force', count: 18, percentage: 14 },
-    { type: 'SQL Injection', count: 14, percentage: 11 },
-  ];
+  if (data.length === 0) {
+    return <p className="text-sm text-muted-foreground">No saved alerts for this chart.</p>;
+  }
+  const chartData = data;
 
   return (
     <div className="w-full h-[300px]">
