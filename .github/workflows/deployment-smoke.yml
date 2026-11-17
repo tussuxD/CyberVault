@@ -1,0 +1,65 @@
+name: CyberVault deployment smoke
+
+on:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  deployment-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build the production container
+        run: docker build -f Dockerfile.cybervault -t cybervault-ci .
+
+      - name: Type-check the dashboard
+        run: docker run --rm cybervault-ci npx --yes pnpm@10.34.9 --filter @workspace/cyber-dashboard run typecheck
+
+      - name: Start an isolated database and app
+        run: |
+          docker network create cybervault-ci
+          docker run -d --name cybervault-db --network cybervault-ci \
+            -e POSTGRES_USER=cybervault -e POSTGRES_PASSWORD=ci-only-password \
+            -e POSTGRES_DB=cybervault postgres:16-alpine
+          for attempt in $(seq 1 60); do
+            if docker exec cybervault-db pg_isready -U cybervault -d cybervault; then break; fi
+            sleep 2
+          done
+          docker run -d --name cybervault-app --network cybervault-ci \
+            --memory=512m --memory-swap=512m -p 8080:8080 \
+            -e PORT=8080 -e JWT_SECRET=ci-only-signing-key-not-a-secret \
+            -e DATABASE_URL=postgres://cybervault:ci-only-password@cybervault-db:5432/cybervault \
+            cybervault-ci
+          ready=0
+          for attempt in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:8080/api/healthz > /dev/null; then ready=1; break; fi
+            sleep 2
+          done
+          test "$ready" = 1
+
+      - name: Install the browser
+        run: |
+          npm install --prefix "$RUNNER_TEMP/cybervault-pw" --no-save --no-package-lock playwright@1.56.1
+          "$RUNNER_TEMP/cybervault-pw/node_modules/.bin/playwright" install --with-deps chromium
+
+      - name: Exercise branding, account access, charts and detection
+        run: node .github/scripts/deployment-smoke.cjs
+        env:
+          NODE_PATH: ${{ runner.temp }}/cybervault-pw/node_modules
+
+      - name: Print app logs if the test fails
+        if: failure()
+        run: docker logs cybervault-app 2>&1 || true
+
+      - name: Remove temporary containers
+        if: always()
+        run: |
+          docker rm -f cybervault-app cybervault-db || true
+          docker network rm cybervault-ci || true
