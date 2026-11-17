@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useGetThreatHeatmap, useGetThreatTrends, useGetAttackDistribution, useGetNetworkTraffic, useGetDeviceHealth, useGetSecurityScore } from '@workspace/api-client-react';
+import type { GetNetworkTrafficPeriod } from '@workspace/api-client-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ThreatHeatmap } from '@/components/charts/ThreatHeatmap';
 import { ThreatTrendsChart } from '@/components/charts/ThreatTrendsChart';
@@ -10,7 +11,7 @@ import { SecurityScoreGauge } from '@/components/charts/SecurityScoreGauge';
 import { Activity, AlertTriangle, ShieldCheck, Target, Radio, Globe } from 'lucide-react';
 
 export default function AnalyticsPage() {
-  const [period, setPeriod] = useState('7d');
+  const [period, setPeriod] = useState<GetNetworkTrafficPeriod>('7d');
   const { data: heatmapData, isLoading: heatmapLoading, isError: heatmapError } = useGetThreatHeatmap();
   const { data: threatTrends, isLoading: trendsLoading, isError: trendsError } = useGetThreatTrends({ period: '30d' });
   const { data: attackDistribution, isLoading: attackLoading, isError: attackError } = useGetAttackDistribution();
@@ -72,7 +73,7 @@ export default function AnalyticsPage() {
                 Network Throughput (Simulated)
               </h3>
               <div className="flex gap-1 bg-black/40 p-1 rounded-lg border border-primary/10">
-                {['1h', '24h', '7d', '30d'].map(option => (
+                {(['1h', '24h', '7d', '30d'] as const).map(option => (
                   <button type="button" key={option} onClick={() => setPeriod(option)} aria-pressed={option === period} className={`px-2 py-1 text-xs font-bold rounded ${option === period ? 'bg-primary text-white' : 'text-muted-foreground hover:text-white'}`}>
                     {option.toUpperCase()}
                   </button>
